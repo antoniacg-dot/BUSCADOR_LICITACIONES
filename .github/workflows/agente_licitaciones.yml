@@ -2,9 +2,8 @@ name: Agente Buscador de Licitaciones
 
 on:
   schedule:
-    # Se ejecuta de lunes a viernes a las 12:00 UTC (09:00 AM en Chile)
+    # Se ejecuta de lunes a viernes a las 12:00 UTC (09:00 AM hora Chile)
     - cron: "0 12 * * 1-5"
-  # Permite ejecutar el workflow manualmente con un botón
   workflow_dispatch: {}
 
 jobs:
@@ -26,10 +25,17 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f .github/workflows/requirements.txt ]; then pip install -r .github/workflows/requirements.txt; fi
 
-      - name: Ejecutar agente buscador
+      - name: Ejecutar agente de Python
         env:
           MERCADO_PUBLICO_TICKET: ${{ secrets.MERCADO_PUBLICO_TICKET }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         run: |
-          if [ -f buscadordelicitaciones.py ]; then python buscadordelicitaciones.py; else python .github/workflows/buscadordelicitaciones.py; fi
+          if [ -f buscadordelicitaciones.py ]; then
+            python buscadordelicitaciones.py
+          elif [ -f .github/workflows/buscadordelicitaciones.py ]; then
+            python .github/workflows/buscadordelicitaciones.py
+          else
+            echo "Error: No se encontro buscadordelicitaciones.py en ninguna carpeta"
+            exit 1
+          fi
