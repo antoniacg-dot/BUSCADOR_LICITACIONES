@@ -24,7 +24,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests google-generativeai beautifulsoup4 pandas openpyxl lxml python-dotenv schedule
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f REQUISITOS.TXT ]; then pip install -r REQUISITOS.TXT; fi
           if [ -f .github/workflows/requirements.txt ]; then pip install -r .github/workflows/requirements.txt; fi
+          if [ -f .github/workflows/REQUISITOS.TXT ]; then pip install -r .github/workflows/REQUISITOS.TXT; fi
 
       - name: Ejecutar agente de Python
         env:
@@ -32,11 +34,11 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         run: |
-          if [ -f buscadordelicitaciones.py ]; then
-            python -u buscadordelicitaciones.py
-          elif [ -f .github/workflows/buscadordelicitaciones.py ]; then
-            python -u .github/workflows/buscadordelicitaciones.py
+          if [ -f buscadordelicitas.py ]; then
+            python -u buscadordelicitas.py
+          elif [ -f .github/workflows/buscadordelicitas.py ]; then
+            python -u .github/workflows/buscadordelicitas.py
           else
-            echo "Error: No se encontro buscadordelicitaciones.py en ninguna carpeta"
+            echo "Error: No se encontro buscadordelicitas.py"
             exit 1
           fi
