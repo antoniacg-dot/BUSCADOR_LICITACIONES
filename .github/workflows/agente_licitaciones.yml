@@ -2,7 +2,6 @@ name: Agente Buscador de Licitaciones
 
 on:
   schedule:
-    # Se ejecuta de lunes a viernes a las 12:00 UTC (09:00 AM hora Chile)
     - cron: "0 12 * * 1-5"
   workflow_dispatch: {}
 
@@ -23,10 +22,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install requests google-generativeai beautifulsoup4 pandas openpyxl lxml python-dotenv schedule
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -f REQUISITOS.TXT ]; then pip install -r REQUISITOS.TXT; fi
-          if [ -f .github/workflows/requirements.txt ]; then pip install -r .github/workflows/requirements.txt; fi
-          if [ -f .github/workflows/REQUISITOS.TXT ]; then pip install -r .github/workflows/REQUISITOS.TXT; fi
+          # Busca e instala automáticamente cualquier archivo de requisitos
+          REQ=$(find . -iname "*req*.txt" -o -iname "*req*.TXT" | head -n 1)
+          if [ -n "$REQ" ]; then pip install -r "$REQ"; fi
 
       - name: Ejecutar agente de Python
         env:
@@ -34,11 +32,14 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         run: |
-          if [ -f buscadordelicitas.py ]; then
-            python -u buscadordelicitas.py
-          elif [ -f .github/workflows/buscadordelicitas.py ]; then
-            python -u .github/workflows/buscadordelicitas.py
+          # Busca en todo el repositorio cualquier archivo python que contenga "buscador"
+          SCRIPT=$(find . -iname "*buscador*.py" | head -n 1)
+          
+          if [ -n "$SCRIPT" ]; then
+            echo "¡Archivo encontrado! Ejecutando: $SCRIPT"
+            python -u "$SCRIPT"
           else
-            echo "Error: No se encontro buscadordelicitas.py"
+            echo "Error: No se encontró ningún archivo de Python. Archivos actuales:"
+            ls -R
             exit 1
           fi
